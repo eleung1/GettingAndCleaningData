@@ -38,10 +38,17 @@ getTidyData <- function() {
   mergedSet_mean_std <- mergedSet[, grepl("-mean\\(\\)|-std\\(\\)", names(mergedSet))]
   
   ## ---------- Combining subjects, labels, and dataset together ---------- ##
-  combined <- cbind(mergedSubjects, mergedLabels, mergedSet_mean_std)
+  combinedSet <- cbind(mergedSubjects, mergedLabels, mergedSet_mean_std)
   
   ## ---------- Sort by Subject ID, then Acitivity name ------------------- ##
-  combined <- combined[order(combined$Subject, combined$Activity),]
+  combinedSet <- combinedSet[order(combinedSet$Subject, combinedSet$Activity),]
   
-  combined
+  ## ----- Dataset with average of each variable for each activity and each subject ----#
+  tidyData <- aggregate(combinedSet, by=list(SubjectGroup=combinedSet$Subject, ActivityGroup=combinedSet$Activity), FUN = mean, na.rm = TRUE)
+  
+  ## Dropping the original Subject and activity columns
+  tidyData <- tidyData[, !(names(tidyData) %in% c("Subject", "Activity"))]
+  
+  ## Return tidy data
+  tidyData
 }
